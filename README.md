@@ -4,6 +4,11 @@
 
 A microservice for simple iot backend handling users & devices operation.
 
+## Planning Features
+
+- :black_square_button: Dockerize
+- :black_square_button: User Role
+
 ## Requirements
 
 1. Node.js (version >= 16)
@@ -31,8 +36,6 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
-
-The application should be serving on port `3000`. (Default)
 
 ## Run tests
 
