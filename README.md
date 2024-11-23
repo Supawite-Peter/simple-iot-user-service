@@ -6,7 +6,7 @@ A microservice for simple iot backend handling users & devices operation.
 
 ## Planning Features
 
-- :black_square_button: Dockerize
+- :white_check_mark: Dockerize
 - :black_square_button: User Role
 
 ## Requirements
