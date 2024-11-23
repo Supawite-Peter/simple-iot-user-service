@@ -6,7 +6,7 @@ A microservice for simple iot backend handling users & devices operation.
 
 ## Planning Features
 
-- :black_square_button: Dockerize
+- :white_check_mark: Dockerize
 - :black_square_button: User Role
 
 ## Requirements
@@ -42,4 +42,10 @@ $ npm run start:prod
 ```bash
 # unit tests
 $ npm run test
+```
+
+## Docker
+
+```bash
+docker build -t simple-iot-user-service:{tag} .
 ```
