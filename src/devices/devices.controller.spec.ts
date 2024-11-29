@@ -79,6 +79,23 @@ describe('DevicesController', () => {
     });
   });
 
+  describe('devices.details', () => {
+    it('should pass data to DevicesService.getDeviceDetails', async () => {
+      // Arrange
+      const input = {
+        deviceId: 1,
+        userId: 1,
+      };
+
+      // Act
+      const result = await controller.getDeviceDetails(input);
+
+      // Assert
+      expect(result).toEqual('Get Device Details Received');
+      expect(service.getDeviceDetails).toHaveBeenCalled();
+    });
+  });
+
   describe('devices.topics.add', () => {
     it('should pass data to DevicesService.addDeviceTopics', async () => {
       // Arrange
