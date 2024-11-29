@@ -34,6 +34,13 @@ export class DevicesController {
     return this.devicesService.getDevicesList(userId);
   }
 
+  @MessagePattern({ cmd: 'devices.details' })
+  getDeviceDetails(
+    @Payload() { userId, deviceId }: { userId: number; deviceId: number },
+  ) {
+    return this.devicesService.getDeviceDetails(userId, deviceId);
+  }
+
   @MessagePattern({ cmd: 'devices.topics.add' })
   addTopics(
     @Payload()

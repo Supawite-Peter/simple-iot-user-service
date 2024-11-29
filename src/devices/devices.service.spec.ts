@@ -296,6 +296,45 @@ describe('DevicesService', () => {
     });
   });
 
+  describe('getDeviceDetail', () => {
+    it('should return a device detail requested by a requester', async () => {
+      // Act & Assert
+      expect(
+        await service.getDeviceDetails(
+          device1StubInfo.user.id,
+          device1StubInfo.id,
+        ),
+      ).toEqual({
+        id: device1StubInfo.id,
+        name: device1StubInfo.name,
+        serial: undefined,
+        userId: device1StubInfo.user.id,
+        topics: device1StubInfo.topics.name,
+      });
+    });
+
+    it('should return throw not found if requester not an owner of the device', async () => {
+      // Act & Assert
+      await expect(
+        service.getDeviceDetails(user3StubInfo.id, device1StubInfo.id),
+      ).rejects.toThrow(
+        new RpcException(
+          new NotFoundException(
+            `Device with id ${device1StubInfo.id} was not found for user with id ${user3StubInfo.id}`,
+          ),
+        ),
+      );
+    });
+
+    it('should throw not found if requester does not exist', async () => {
+      await expect(
+        service.getDeviceDetails(4, device2StubInfo.id),
+      ).rejects.toThrow(
+        new RpcException(new NotFoundException('User not found')),
+      );
+    });
+  });
+
   describe('addDeviceTopics', () => {
     it('should add topics to a device (input topics is a string)', async () => {
       // Arrange

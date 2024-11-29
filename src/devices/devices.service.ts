@@ -47,7 +47,7 @@ export class DevicesService {
     });
     await this.devicesRepository.save(device);
 
-    return this.getDeviceDetails(device);
+    return this.prepareDeviceDetails(device);
   }
 
   async unregister(
@@ -60,7 +60,7 @@ export class DevicesService {
     // Unregister device
     await this.devicesRepository.remove(device);
 
-    return this.getDeviceDetails(device, deviceId);
+    return this.prepareDeviceDetails(device, deviceId);
   }
 
   async getDevicesList(requesterId: number): Promise<DeviceDetail[]> {
@@ -72,7 +72,24 @@ export class DevicesService {
     if (devices.length === 0)
       throw new RpcException(new NotFoundException('No devices found'));
 
-    return this.getDevicesDetails(devices);
+    return this.prepareDevicesDetails(devices);
+  }
+
+  async getDeviceDetails(
+    requesterId: number,
+    deviceId: number,
+  ): Promise<DeviceDetail> {
+    // Get & Check if user exists
+    const user = await this.getUser(requesterId);
+
+    // Get device
+    const device = await this.getAndCheckDeviceOwner(deviceId, user.id);
+
+    // Throw not found if device does not exist
+    if (!device)
+      throw new RpcException(new NotFoundException('Device not found'));
+
+    return this.prepareDeviceDetails(device, deviceId);
   }
 
   async addDeviceTopics(
@@ -89,7 +106,7 @@ export class DevicesService {
     }
 
     // Get topics to register
-    const registeredTopics = this.getTopicsDetails(device);
+    const registeredTopics = this.prepareTopicsDetails(device);
     const toRegisterTopics: Set<string> = new Set();
     for (const topic of deviceTopics) {
       if (!registeredTopics.includes(topic)) {
@@ -226,21 +243,21 @@ export class DevicesService {
     return createdTopics;
   }
 
-  private getDeviceDetails(device: Device, id?: number): DeviceDetail {
+  private prepareDeviceDetails(device: Device, id?: number): DeviceDetail {
     return {
       id: device.id ? device.id : id,
       name: device.name,
       userId: device.user.id,
       serial: device.serial,
-      topics: this.getTopicsDetails(device),
+      topics: this.prepareTopicsDetails(device),
     };
   }
 
-  private getDevicesDetails(devices: Device[]): DeviceDetail[] {
-    return devices.map((device) => this.getDeviceDetails(device));
+  private prepareDevicesDetails(devices: Device[]): DeviceDetail[] {
+    return devices.map((device) => this.prepareDeviceDetails(device));
   }
 
-  private getTopicsDetails(device: Device): string[] {
+  private prepareTopicsDetails(device: Device): string[] {
     return device.topics ? device.topics.map((topic) => topic.name) : [];
   }
 }

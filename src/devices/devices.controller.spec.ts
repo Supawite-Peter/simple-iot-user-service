@@ -42,7 +42,7 @@ describe('DevicesController', () => {
 
       // Assert
       expect(result).toEqual('Register Received');
-      expect(service.register).toHaveBeenCalled();
+      expect(service.register).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -59,7 +59,7 @@ describe('DevicesController', () => {
 
       // Assert
       expect(result).toEqual('Unregister Received');
-      expect(service.unregister).toHaveBeenCalled();
+      expect(service.unregister).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -75,7 +75,24 @@ describe('DevicesController', () => {
 
       // Assert
       expect(result).toEqual('Get Devices List Received');
-      expect(service.getDevicesList).toHaveBeenCalled();
+      expect(service.getDevicesList).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('devices.details', () => {
+    it('should pass data to DevicesService.getDeviceDetails', async () => {
+      // Arrange
+      const input = {
+        deviceId: 1,
+        userId: 1,
+      };
+
+      // Act
+      const result = await controller.getDeviceDetails(input);
+
+      // Assert
+      expect(result).toEqual('Get Device Details Received');
+      expect(service.getDeviceDetails).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -93,7 +110,7 @@ describe('DevicesController', () => {
 
       // Assert
       expect(result).toEqual('Add Device Topic Received');
-      expect(service.addDeviceTopics).toHaveBeenCalled();
+      expect(service.addDeviceTopics).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -111,7 +128,7 @@ describe('DevicesController', () => {
 
       // Assert
       expect(result).toEqual('Remove Device Topic Received');
-      expect(service.removeDeviceTopics).toHaveBeenCalled();
+      expect(service.removeDeviceTopics).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -4,6 +4,9 @@ export class DevicesServiceMock {
       register: jest.fn().mockResolvedValue('Register Received'),
       unregister: jest.fn().mockResolvedValue('Unregister Received'),
       getDevicesList: jest.fn().mockResolvedValue('Get Devices List Received'),
+      getDeviceDetails: jest
+        .fn()
+        .mockResolvedValue('Get Device Details Received'),
       addDeviceTopics: jest.fn().mockResolvedValue('Add Device Topic Received'),
       removeDeviceTopics: jest
         .fn()
