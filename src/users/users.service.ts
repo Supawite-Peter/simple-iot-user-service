@@ -22,7 +22,17 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
+  /**
+   * Signs in a user.
+   * @param username The username
+   * @param password The password
+   * @returns JWT token
+   * @throws InternalServerErrorException if username or password is undefined
+   * @throws NotFoundException if the user does not exist
+   * @throws UnauthorizedException if the password is incorrect
+   */
   async signIn(username: string, password: string): Promise<TokenDetail> {
+    // Check if username and password are defined
     if (!username || !password)
       throw new RpcException(
         new InternalServerErrorException('Undefined username or password'),
@@ -73,7 +83,7 @@ export class UsersService {
     });
     await this.usersRepository.save(user);
 
-    return this.getUserDetails(user);
+    return this.prepareUserDetails(user);
   }
 
   /**
@@ -104,7 +114,25 @@ export class UsersService {
     // Delete user
     await this.usersRepository.remove(user);
 
-    return this.getUserDetails(user, userId);
+    return this.prepareUserDetails(user, userId);
+  }
+
+  /**
+   * Get user details by id.
+   * @param userId The id of the user
+   * @returns User detail of the user
+   * @throws NotFoundException if the user does not exist
+   */
+  async getUserDetails(userId: number): Promise<UserDetail> {
+    // Get user record
+    const user = await this.findUserId(userId);
+
+    // Throw NotFoundException if user does not exist
+    if (!user)
+      throw new RpcException(new NotFoundException('User does not exist'));
+
+    // Prepare user details
+    return this.prepareUserDetails(user);
   }
 
   /**
@@ -139,7 +167,13 @@ export class UsersService {
     return await bcrypt.compare(password, hash);
   }
 
-  private getUserDetails(user: User, id?: number): UserDetail {
+  /**
+   * Prepare user details to return to the client.
+   * @param user The user from which to prepare the details
+   * @param id Optional id to use instead of the user's id
+   * @returns User detail object
+   */
+  private prepareUserDetails(user: User, id?: number): UserDetail {
     return {
       id: user.id ? user.id : id,
       firstName: user.firstName,

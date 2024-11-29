@@ -26,4 +26,9 @@ export class UsersController {
   ) {
     return this.usersService.unregister(userId, password);
   }
+
+  @MessagePattern({ cmd: 'users.details' })
+  getUserDetails(@Payload() userId: number) {
+    return this.usersService.getUserDetails(userId);
+  }
 }
