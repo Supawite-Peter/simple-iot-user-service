@@ -35,7 +35,7 @@ describe('UsersController', () => {
           password: 'pass',
         }),
       ).toEqual('Signin Received');
-      expect(service.signIn).toHaveBeenCalled();
+      expect(service.signIn).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -47,7 +47,7 @@ describe('UsersController', () => {
           password: 'pass',
         }),
       ).toEqual('Register Received');
-      expect(service.register).toHaveBeenCalled();
+      expect(service.register).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -59,7 +59,7 @@ describe('UsersController', () => {
           password: 'pass',
         }),
       ).toEqual('Unregister Received');
-      expect(service.unregister).toHaveBeenCalled();
+      expect(service.unregister).toHaveBeenCalledTimes(1);
     });
   });
 
