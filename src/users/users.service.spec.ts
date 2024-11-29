@@ -283,6 +283,37 @@ describe('UsersService', () => {
     });
   });
 
+  describe('getUserDetails', () => {
+    it('should return user details', async () => {
+      // Arrange
+      const userStub = {
+        id: 1,
+        username: 'test_user',
+        firstName: 'test',
+        lastName: 'test',
+        passwordHash: TEST_CORRECT_HASH,
+      };
+      jest
+        .spyOn(userRepository, 'findOneByOrFail')
+        .mockResolvedValueOnce(userStub as User);
+
+      // Act & Assert
+      expect(await service.getUserDetails(userStub.id)).toEqual({
+        id: userStub.id,
+        username: userStub.username,
+        firstName: userStub.firstName,
+        lastName: userStub.lastName,
+      });
+    });
+
+    it('should return not found exception if user does not exist', async () => {
+      // Act & Assert
+      await expect(service.getUserDetails(99)).rejects.toThrow(
+        new RpcException(new NotFoundException('User does not exist')),
+      );
+    });
+  });
+
   describe('findUsername', () => {
     it('should return user by username', async () => {
       // Arrange

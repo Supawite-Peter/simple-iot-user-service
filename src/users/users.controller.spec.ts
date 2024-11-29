@@ -62,4 +62,13 @@ describe('UsersController', () => {
       expect(service.unregister).toHaveBeenCalled();
     });
   });
+
+  describe('users.details', () => {
+    it('should pass userId to UsersService.getUserDetails', async () => {
+      expect(await controller.getUserDetails(1)).toEqual(
+        'getUserDetails Received',
+      );
+      expect(service.getUserDetails).toHaveBeenCalledTimes(1);
+    });
+  });
 });
