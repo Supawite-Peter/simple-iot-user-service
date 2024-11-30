@@ -55,15 +55,15 @@ describe('UsersService', () => {
   });
 
   describe('signIn', () => {
-    it('should return access token if user exists', async () => {
+    it('should return access and refresh token if user exists and password is correct', async () => {
       // Arrange
       const userStub = {
         id: 1,
         username: 'test_user',
         passwordHash: TEST_CORRECT_HASH,
       } as UserStubInfo;
-      const expectedToken = 'jwttoken';
-      authClientMock.token = expectedToken;
+      authClientMock.accessTokenStub = 'access_token';
+      authClientMock.refreshTokenStub = 'refresh_token';
       jest
         .spyOn(userRepository, 'findOneByOrFail')
         .mockResolvedValue(CreateUserStubHepler.createUserStub(userStub));
@@ -73,8 +73,31 @@ describe('UsersService', () => {
 
       // Assert
       expect(result).toEqual({
-        accessToken: expectedToken,
+        user: { sub: userStub.id, username: userStub.username },
+        token: { accessToken: 'access_token', refreshToken: 'refresh_token' },
       });
+    });
+
+    it('should throw internal exception if unable to sign jwt token', async () => {
+      // Arrange
+      const userStub = {
+        id: 1,
+        username: 'test_user',
+        passwordHash: TEST_CORRECT_HASH,
+      } as UserStubInfo;
+      jest
+        .spyOn(userRepository, 'findOneByOrFail')
+        .mockResolvedValue(CreateUserStubHepler.createUserStub(userStub));
+      authClientMock.error = RpcException;
+
+      // Act & Assert
+      await expect(
+        service.signIn(userStub.username, TEST_PASS),
+      ).rejects.toThrow(
+        new RpcException(
+          new InternalServerErrorException('Unable to sign JWT token'),
+        ),
+      );
     });
 
     it('should throw not found exception if user does not exist', async () => {
