@@ -28,7 +28,7 @@ export class UsersController {
   }
 
   @MessagePattern({ cmd: 'users.details' })
-  getUserDetails(@Payload() userId: number) {
+  getUserDetails(@Payload() { userId }: { userId: number }) {
     return this.usersService.getUserDetails(userId);
   }
 }
