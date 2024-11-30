@@ -1,3 +1,10 @@
 export interface TokenDetail {
-  accessToken: string;
+  user?: {
+    sub: number;
+    username: string;
+  };
+  token?: {
+    accessToken?: string;
+    refreshToken?: string;
+  };
 }

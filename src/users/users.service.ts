@@ -47,14 +47,37 @@ export class UsersService {
     if (!(await this.checkHash(password, user.passwordHash)))
       throw new RpcException(new UnauthorizedException('Incorrect password'));
 
-    // Generate JWT
-    const payload = { userId: user.id, username: user.username };
-    const pattern = { cmd: 'auth.token.sign' };
-    return {
-      accessToken: await firstValueFrom(
-        this.authService.send(pattern, payload),
-      ),
-    };
+    // Request for JWT token
+    try {
+      const pattern = { cmd: 'auth.token.sign' };
+      const accessToken = await firstValueFrom(
+        this.authService.send(pattern, {
+          userId: user.id,
+          username: user.username,
+          type: 'access',
+        }),
+      );
+      const refreshToken = await firstValueFrom(
+        this.authService.send(pattern, {
+          userId: user.id,
+          username: user.username,
+          type: 'refresh',
+        }),
+      );
+
+      // Return JWT token with user details
+      return {
+        user: accessToken.user,
+        token: {
+          accessToken: accessToken.token,
+          refreshToken: refreshToken.token,
+        },
+      };
+    } catch {
+      throw new RpcException(
+        new InternalServerErrorException('Unable to sign JWT token'),
+      );
+    }
   }
 
   /**

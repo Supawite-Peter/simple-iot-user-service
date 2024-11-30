@@ -65,7 +65,7 @@ describe('UsersController', () => {
 
   describe('users.details', () => {
     it('should pass userId to UsersService.getUserDetails', async () => {
-      expect(await controller.getUserDetails(1)).toEqual(
+      expect(await controller.getUserDetails({ userId: 1 })).toEqual(
         'getUserDetails Received',
       );
       expect(service.getUserDetails).toHaveBeenCalledTimes(1);
