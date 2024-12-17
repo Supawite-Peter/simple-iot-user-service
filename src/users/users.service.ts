@@ -141,14 +141,25 @@ export class UsersService {
   }
 
   /**
-   * Get user details by id.
-   * @param userId The id of the user
+   * Get user details by id or username.
+   * @param input The id or username of the user
    * @returns User detail of the user
    * @throws NotFoundException if the user does not exist
    */
-  async getUserDetails(userId: number): Promise<UserDetail> {
+  async getUserDetails(input: number | string): Promise<UserDetail> {
     // Get user record
-    const user = await this.findUserId(userId);
+    let user = undefined;
+    if (typeof input === 'string') {
+      user = await this.findUsername(input);
+    } else if (typeof input === 'number') {
+      user = await this.findUserId(input);
+    } else {
+      throw new RpcException(
+        new InternalServerErrorException(
+          'Invalid input type. Expected number or string',
+        ),
+      );
+    }
 
     // Throw NotFoundException if user does not exist
     if (!user)
