@@ -7,6 +7,7 @@ export class CreateUserStubHepler {
     user.id = info.id;
     user.username = info.username;
     user.passwordHash = info.passwordHash;
+    user.mqttPasswordHash = info.mqttPasswordHash;
     user.firstName = info.firstName;
     user.lastName = info.lastName;
     return user;

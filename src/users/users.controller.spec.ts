@@ -80,4 +80,28 @@ describe('UsersController', () => {
       expect(service.getUserDetails).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('users.mqtt.update.password', () => {
+    it('should pass userId and password to UsersService.updateMqttPassword', async () => {
+      expect(
+        await controller.updateMqttPassword({
+          userId: 1,
+          password: 'pass',
+        }),
+      ).toEqual('updateMqttPassword Received');
+      expect(service.updateMqttPassword).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('[POST] /users/mqtt/auth', () => {
+    it('should send username and password to service.mqttAuth', async () => {
+      expect(
+        await controller.mqttAuth({
+          username: 'user',
+          password: 'pass',
+        }),
+      ).toEqual('mqttAuth Received');
+      expect(service.mqttAuth).toHaveBeenCalledTimes(1);
+    });
+  });
 });

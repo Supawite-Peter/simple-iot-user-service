@@ -109,8 +109,9 @@ export class DevicesService {
     const registeredTopics = this.prepareTopicsDetails(device);
     const toRegisterTopics: Set<string> = new Set();
     for (const topic of deviceTopics) {
-      if (!registeredTopics.includes(topic)) {
-        toRegisterTopics.add(topic);
+      const lowerCaseTopic = topic.toLowerCase();
+      if (!registeredTopics.includes(lowerCaseTopic)) {
+        toRegisterTopics.add(lowerCaseTopic);
       }
     }
     const addedTopics = Array.from(toRegisterTopics);
@@ -140,6 +141,9 @@ export class DevicesService {
     if (typeof deviceTopics === 'string') {
       deviceTopics = [deviceTopics];
     }
+
+    // Lowercase topics
+    deviceTopics = deviceTopics.map((topic) => topic.toLowerCase());
 
     // Get topics that will be removed
     const toRemovedTopics = [];
@@ -171,7 +175,7 @@ export class DevicesService {
     const device = await this.getAndCheckDeviceOwner(deviceId, requesterId);
 
     // Check if topic is registered
-    if (!device.topics.map((t) => t.name).includes(deviceTopic))
+    if (!device.topics.map((t) => t.name).includes(deviceTopic.toLowerCase()))
       throw new RpcException(
         new BadRequestException('Topic is not registered'),
       );
@@ -233,8 +237,11 @@ export class DevicesService {
     for (const topic of topicsName)
       createdTopics.push(
         device != null
-          ? this.topicsRepository.create({ name: topic, device: device })
-          : this.topicsRepository.create({ name: topic }),
+          ? this.topicsRepository.create({
+              name: topic.toLowerCase(),
+              device: device,
+            })
+          : this.topicsRepository.create({ name: topic.toLowerCase() }),
       );
 
     // Save topics if device is registered to the topics

@@ -1,6 +1,14 @@
-import { Controller } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UsePipes,
+  ValidationPipe,
+  Body,
+  HttpCode,
+} from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from './users.service';
+import { MqttAuthDto } from './dto/mqtt.auth.dto';
 
 @Controller('users')
 export class UsersController {
@@ -37,5 +45,19 @@ export class UsersController {
   getUserDetailsByName(@Payload() { username }: { username: string }) {
     // To Do: add cache
     return this.usersService.getUserDetails(username);
+  }
+
+  @MessagePattern({ cmd: 'users.mqtt.update.password' })
+  async updateMqttPassword(
+    @Payload() { userId, password }: { userId: number; password: string },
+  ) {
+    return this.usersService.updateMqttPassword(userId, password);
+  }
+
+  @Post('mqtt/auth')
+  @UsePipes(new ValidationPipe())
+  @HttpCode(200)
+  async mqttAuth(@Body() mqttAuthDto: MqttAuthDto) {
+    return this.usersService.mqttAuth(mqttAuthDto);
   }
 }

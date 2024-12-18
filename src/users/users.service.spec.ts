@@ -351,10 +351,229 @@ describe('UsersService', () => {
       });
     });
 
+    describe('mqttAuth', () => {
+      it('should return result = allow if username and password are correct (mqtt password not set)', async () => {
+        // Arrange
+        const userStub = {
+          id: 1,
+          username: 'test_user',
+          passwordHash: TEST_CORRECT_HASH,
+          mqttPasswordHash: null,
+        } as UserStubInfo;
+        jest
+          .spyOn(userRepository, 'findOneByOrFail')
+          .mockResolvedValue(CreateUserStubHepler.createUserStub(userStub));
+
+        // Act
+        const result = await service.mqttAuth({
+          username: userStub.username,
+          password: TEST_PASS,
+        });
+
+        // Assert
+        expect(result).toEqual({
+          result: 'allow',
+        });
+      });
+
+      it('should return result = allow if username and password are correct (mqtt password set)', async () => {
+        // Arrange
+        const userStub = {
+          id: 1,
+          username: 'test_user',
+          passwordHash: TEST_WRONG_HASH,
+          mqttPasswordHash: TEST_CORRECT_HASH,
+        } as UserStubInfo;
+        jest
+          .spyOn(userRepository, 'findOneByOrFail')
+          .mockResolvedValue(CreateUserStubHepler.createUserStub(userStub));
+
+        // Act
+        const result = await service.mqttAuth({
+          username: userStub.username,
+          password: TEST_PASS,
+        });
+
+        // Assert
+        expect(result).toEqual({
+          result: 'allow',
+        });
+      });
+
+      it('should return result = deny if password is incorrect (mqtt password not set)', async () => {
+        // Arrange
+        const userStub = {
+          id: 1,
+          username: 'test_user',
+          passwordHash: TEST_WRONG_HASH,
+          mqttPasswordHash: null,
+        } as UserStubInfo;
+        jest
+          .spyOn(userRepository, 'findOneByOrFail')
+          .mockResolvedValue(CreateUserStubHepler.createUserStub(userStub));
+
+        // Act
+        const result = await service.mqttAuth({
+          username: userStub.username,
+          password: TEST_PASS,
+        });
+
+        // Assert
+        expect(result).toEqual({
+          result: 'deny',
+        });
+      });
+
+      it('should return result = deny if password is incorrect (mqtt password set)', async () => {
+        // Arrange
+        const userStub = {
+          id: 1,
+          username: 'test_user',
+          passwordHash: TEST_CORRECT_HASH,
+          mqttPasswordHash: TEST_WRONG_HASH,
+        } as UserStubInfo;
+        jest
+          .spyOn(userRepository, 'findOneByOrFail')
+          .mockResolvedValue(CreateUserStubHepler.createUserStub(userStub));
+
+        // Act
+        const result = await service.mqttAuth({
+          username: userStub.username,
+          password: TEST_PASS,
+        });
+
+        // Assert
+        expect(result).toEqual({
+          result: 'deny',
+        });
+      });
+
+      it('should return result = deny if username is undefined', async () => {
+        // Act & Assert
+        expect(
+          await service.mqttAuth({
+            username: undefined,
+            password: 'some_password',
+          }),
+        ).toEqual({
+          result: 'deny',
+        });
+      });
+
+      it('should return result = deny if password is undefined', async () => {
+        // Act & Assert
+        expect(
+          await service.mqttAuth({
+            username: 'some_username',
+            password: undefined,
+          }),
+        ).toEqual({
+          result: 'deny',
+        });
+      });
+
+      it('should return result = deny if user does not exist', async () => {
+        // Act
+        const result = await service.mqttAuth({
+          username: 'test_user',
+          password: TEST_PASS,
+        });
+
+        // Assert
+        expect(result).toEqual({
+          result: 'deny',
+        });
+      });
+    });
+
     it('should return not found exception if user does not exist', async () => {
       // Act & Assert
       await expect(service.getUserDetails(99)).rejects.toThrow(
         new RpcException(new NotFoundException('User does not exist')),
+      );
+    });
+  });
+
+  describe('updateMqttPassword', () => {
+    it('should update mqtt password', async () => {
+      // Arrange
+      const userStub = {
+        id: 1,
+        username: 'test_user',
+        passwordHash: 'some_hash',
+        mqttPasswordHash: 'some_hash_2',
+      } as UserStubInfo;
+      const updatedHash = 'some_hash_3';
+      jest
+        .spyOn(userRepository, 'findOneByOrFail')
+        .mockResolvedValueOnce(CreateUserStubHepler.createUserStub(userStub));
+      jest.spyOn(bcrypt, 'hash').mockImplementationOnce(() => updatedHash);
+
+      // Act
+      await service.updateMqttPassword(userStub.id, TEST_PASS);
+
+      // Assert
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith({
+        id: userStub.id,
+        username: userStub.username,
+        passwordHash: userStub.passwordHash,
+        mqttPasswordHash: updatedHash,
+        firstName: undefined,
+        lastName: undefined,
+      });
+    });
+
+    it('should update mqtt password (mqtt password not set)', async () => {
+      // Arrange
+      const userStub = {
+        id: 1,
+        username: 'test_user',
+        passwordHash: 'some_hash',
+      } as UserStubInfo;
+      const updatedHash = 'some_hash_2';
+      jest
+        .spyOn(userRepository, 'findOneByOrFail')
+        .mockResolvedValueOnce(CreateUserStubHepler.createUserStub(userStub));
+      jest.spyOn(bcrypt, 'hash').mockImplementationOnce(() => updatedHash);
+
+      // Act
+      await service.updateMqttPassword(userStub.id, TEST_PASS);
+
+      // Assert
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith({
+        id: userStub.id,
+        username: userStub.username,
+        passwordHash: userStub.passwordHash,
+        mqttPasswordHash: updatedHash,
+        firstName: undefined,
+        lastName: undefined,
+      });
+    });
+
+    it('should throw not found exception if user does not exist', async () => {
+      // Act & Assert
+      await expect(service.updateMqttPassword(99, TEST_PASS)).rejects.toThrow(
+        new RpcException(new NotFoundException('User does not exist')),
+      );
+    });
+
+    it('should throw internal exception if input password is undefined', async () => {
+      // Act & Assert
+      await expect(service.updateMqttPassword(1, undefined)).rejects.toThrow(
+        new RpcException(
+          new InternalServerErrorException('Undefined MQTT password'),
+        ),
+      );
+    });
+
+    it('should throw internal exception if input user id is undefined', async () => {
+      // Act & Assert
+      await expect(
+        service.updateMqttPassword(undefined, TEST_PASS),
+      ).rejects.toThrow(
+        new RpcException(new InternalServerErrorException('Undefined user id')),
       );
     });
   });
