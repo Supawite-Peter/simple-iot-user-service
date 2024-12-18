@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { UserDetail } from './interfaces/users.interface';
 import { TokenDetail } from './interfaces/token.interface';
+import { MqttAuthDto, MqttAuthResultDto } from './dto/mqtt.auth.dto';
 
 @Injectable()
 export class UsersService {
@@ -199,6 +200,41 @@ export class UsersService {
    */
   async checkHash(password: string, hash: string): Promise<boolean> {
     return await bcrypt.compare(password, hash);
+  }
+
+  /**
+   * Authenticate a user with a MQTT password.
+   * @param username The username
+   * @param password The MQTT password
+   * @returns The result of the authentication in a MqttAuthResultDto
+   */
+  async mqttAuth({
+    username,
+    password,
+  }: MqttAuthDto): Promise<MqttAuthResultDto> {
+    // Check if username and password are defined
+    if (username === undefined || password === undefined)
+      return { result: 'deny' };
+
+    // Get user
+    const user = await this.findUsername(username);
+    if (!user) return { result: 'deny' };
+
+    // Get mqtt password hash if not exists use base password hash as fallback
+    let passwordHash = user.mqttPasswordHash;
+    if (passwordHash === null || passwordHash === undefined)
+      passwordHash = user.passwordHash;
+
+    // Check password hash
+    if (await this.checkHash(password, passwordHash)) {
+      return {
+        result: 'allow',
+      };
+    }
+
+    return {
+      result: 'deny',
+    };
   }
 
   /**
