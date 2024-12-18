@@ -6,6 +6,9 @@ export class UsersServiceMock {
       unregister: jest.fn().mockResolvedValue('Unregister Received'),
       getUserDetails: jest.fn().mockResolvedValue('getUserDetails Received'),
       mqttAuth: jest.fn().mockResolvedValue('mqttAuth Received'),
+      updateMqttPassword: jest
+        .fn()
+        .mockResolvedValue('updateMqttPassword Received'),
     };
   }
 }
