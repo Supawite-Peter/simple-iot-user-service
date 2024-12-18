@@ -25,6 +25,9 @@ export class User {
   @Column('varchar', { length: 60 })
   passwordHash: string;
 
+  @Column('varchar', { length: 60, nullable: true })
+  mqttPasswordHash: string;
+
   @OneToMany(() => Device, (device) => device.user, {
     cascade: true,
     nullable: true,
