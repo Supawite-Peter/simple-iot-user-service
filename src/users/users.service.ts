@@ -238,6 +238,43 @@ export class UsersService {
   }
 
   /**
+   * Update a user's MQTT password.
+   * @param userId The user id of the user
+   * @param password The new MQTT password
+   * @returns The user detail of the updated user
+   * @throws InternalServerErrorException if the user id or MQTT password is undefined
+   * @throws NotFoundException if the user does not exist
+   */
+  async updateMqttPassword(
+    userId: number,
+    password: string,
+  ): Promise<UserDetail> {
+    // Check if input is defined
+    if (userId === undefined)
+      throw new RpcException(
+        new InternalServerErrorException('Undefined user id'),
+      );
+    if (password === undefined)
+      throw new RpcException(
+        new InternalServerErrorException('Undefined MQTT password'),
+      );
+
+    // Check if user exists
+    const user = await this.findUserId(userId);
+    if (!user)
+      throw new RpcException(new NotFoundException('User does not exist'));
+
+    // Get mqtt password hash
+    user.mqttPasswordHash = await bcrypt.hash(password, 10);
+
+    // Save user
+    await this.usersRepository.save(user);
+
+    // Return user details
+    return this.prepareUserDetails(user);
+  }
+
+  /**
    * Prepare user details to return to the client.
    * @param user The user from which to prepare the details
    * @param id Optional id to use instead of the user's id

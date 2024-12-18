@@ -47,6 +47,13 @@ export class UsersController {
     return this.usersService.getUserDetails(username);
   }
 
+  @MessagePattern({ cmd: 'users.mqtt.update.password' })
+  async updateMqttPassword(
+    @Payload() { userId, password }: { userId: number; password: string },
+  ) {
+    return this.usersService.updateMqttPassword(userId, password);
+  }
+
   @Post('mqtt/auth')
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
