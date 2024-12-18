@@ -307,7 +307,7 @@ describe('UsersService', () => {
   });
 
   describe('getUserDetails', () => {
-    it('should return user details', async () => {
+    it('should return user details (id)', async () => {
       // Arrange
       const userStub = {
         id: 1,
@@ -322,6 +322,28 @@ describe('UsersService', () => {
 
       // Act & Assert
       expect(await service.getUserDetails(userStub.id)).toEqual({
+        id: userStub.id,
+        username: userStub.username,
+        firstName: userStub.firstName,
+        lastName: userStub.lastName,
+      });
+    });
+
+    it('should return user details (username)', async () => {
+      // Arrange
+      const userStub = {
+        id: 1,
+        username: 'test_user',
+        firstName: 'test',
+        lastName: 'test',
+        passwordHash: TEST_CORRECT_HASH,
+      };
+      jest
+        .spyOn(userRepository, 'findOneByOrFail')
+        .mockResolvedValueOnce(userStub as User);
+
+      // Act & Assert
+      expect(await service.getUserDetails(userStub.username)).toEqual({
         id: userStub.id,
         username: userStub.username,
         firstName: userStub.firstName,

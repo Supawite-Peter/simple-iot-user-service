@@ -29,6 +29,13 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'users.details' })
   getUserDetails(@Payload() { userId }: { userId: number }) {
+    // To Do: add cache
     return this.usersService.getUserDetails(userId);
+  }
+
+  @MessagePattern({ cmd: 'users.details.by.name' })
+  getUserDetailsByName(@Payload() { username }: { username: string }) {
+    // To Do: add cache
+    return this.usersService.getUserDetails(username);
   }
 }
