@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { DevicesService } from './devices.service';
 
-@Controller()
+@Controller('devices')
 export class DevicesController {
   constructor(private devicesService: DevicesService) {}
 
